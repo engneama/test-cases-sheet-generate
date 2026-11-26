@@ -7,7 +7,7 @@ description: "Writes manual test cases (functional, non-functional, security, us
 Act as a senior QA engineer. The sheet is uploaded to another system, so headers, column order and fixed values must match the template exactly.
 
 ## Core rules
-1. **Scope**: test only what the inputs state. Never invent features, fields, roles, messages, rules, limits or outcomes. Exceptions: the Security & Usability checklists (§4) and gaps the user confirms (§5). Practices from other systems that are policy choices (password complexity, CAPTCHA, duplicate handling…) are gaps to ask, not cases.
+1. **Scope**: test only what the inputs state. Never invent features, fields, roles, messages, rules, limits or outcomes. Exceptions: the Security & Usability checklists (§4), the field-type checklist (§11) and gaps the user confirms (§5). Practices from other systems that are policy choices (password complexity, CAPTCHA, duplicate handling…) are gaps to ask, not cases.
 2. **No invented values**: every limit (length, digits, range, format, file type/size, attempts, timeout, expiry) comes from the inputs or the user. Not stated → write "not defined in the BRD" in the step, Expected = `Depend on BRD or User Story`, and log a gap. Same for environment and data: the environment URL (dev, UAT, prod…), page paths, email domain, accounts and form fields come only from the inputs or the user. This skill has no fixed system; its `<placeholders>` are never copied into cases.
 3. **EP + BVA** on every stated rule/limit (§11).
 4. **Gaps**: ask the user yes/no before building files; add only confirmed ones (§5).
@@ -19,7 +19,7 @@ Act as a senior QA engineer. The sheet is uploaded to another system, so headers
 ## Workflow
 1. Read inputs (§1); ask for missing project info (§2).
 2. List requirements with their rules and values (§3).
-3. Plan cases: requirement coverage + EP/BVA + Security + Usability; remove duplicates.
+3. Plan cases: requirement coverage + EP/BVA + field-type checklist + Security + Usability; remove duplicates.
 4. Ask about gaps (§5) and wait. No gaps → skip.
 5. Add confirmed cases, build files (§13), run self-check (§14).
 
@@ -35,7 +35,7 @@ Ask once, in one message, for what's missing (never guess IDs): Project ID (e.g.
 ## 3. Requirements
 - List every requirement with the BRD's IDs (`FR-03`, `AC-2`) or `R1, R2…`, as a short English summary: functional rules, fields, messages, roles, visible elements, and non-functional requirements (performance, browsers/devices, accessibility, localization…).
 - Per field, record its rules with the exact input values: min/max length, allowed chars, format, range, digits, file types/size, date range, max items, options/statuses. Missing → "not defined".
-- Per requirement, cover what applies: positive; negative (invalid input, wrong credentials, empty mandatory); EP/BVA; each role's access; audit log (if mentioned); UI (element visible, enabled, clickable, `*` marker; matches the design: labels, order, placeholders, states); non-functional (one case per measurable value, e.g. loads within `<n>` seconds; not measurable → ask, §5).
+- Per requirement, cover what applies: positive; negative (invalid input, wrong credentials, empty mandatory); EP/BVA; each role's access; audit log (if mentioned); UI (element visible, enabled, clickable, `*` marker, read-only fields can't be edited; matches the design: labels, order, placeholders, states); non-functional (one case per measurable value, e.g. loads within `<n>` seconds; not measurable → ask, §5).
 
 ## 4. Security & Usability (always, even if not in the BRD)
 Write every item whose trigger exists in the feature; skip only what clearly doesn't apply. No yes/no needed. Expected = the standard secure/usable behavior; if it depends on an undefined value or text → `Depend on BRD or User Story` + business gap. If the BRD defines a conflicting behavior, follow the BRD and log a security/usability gap. Write each once per feature/page (not per requirement) unless roles/pages differ.
@@ -68,7 +68,7 @@ Team style example: Title `Verify "<link>" link is visible and clickable` · Det
 Gap = something a tester needs that the inputs don't define.
 | Type | Example | Handling |
 |---|---|---|
-| Security/usability value | Lockout attempts, timeout, link expiry, message | Case written; reported, not asked |
+| Security/usability/field-type behavior | Lockout attempts, timeout, link expiry, message; spaces trimmed? emoji allowed? | Case written; reported, not asked |
 | Missing message/outcome | Error/success text, redirect, email, status change | Case written with `Depend on BRD or User Story`; reported |
 | Missing scenario | Duplicate email, cancelled action, Back after submit | Ask |
 | Missing rule/limit | No length, chars, format, range, file type/size (blocks EP/BVA) | Ask + ask for the value |
@@ -96,36 +96,35 @@ Bad: `Empty field` (too short); titles listing steps or several checks (too long
 
 ## 9. Details
 - `- Precondition: …` lines first (account, role, data state) when needed.
-- Then one step per line starting with `- ` (line breaks inside the cell, no numbering). First step opens the full URL of the given environment: `- Open the "<page>" page <environment URL><path>`
-- Mid-case checks allowed: `- Verify the "<page>" page opens (<path>).`
+- Then one step per line starting with `- ` (line breaks inside the cell, no numbering). First step opens the full URL of the given environment: `- Open the "<page>" page <environment URL><path>`. Mid-case checks allowed: `- Verify the "<page>" page opens (<path>).`
 - **Test data inside the step**: kind of value + example with `like ex:`; never "valid data" / "any value". Examples obey the stated rules.
   - `- Enter a valid registered email like ex: "<registered email>" in the "<email field>" field.`
   - `- Enter a not valid email without domain like ex: "<name>@" in the "<email field>" field.`
   - `- Upload a not valid file type (allowed: <types>) like ex: "file.<type>" in the "<attachment field>" field.`
   - `- Leave the "<field>" field empty.`
 - Forms: one step per field in on-screen order (Enter / Select / Check / Upload), then the click.
-- Negative cases: all other fields valid (written out), only the field under test invalid, with the reason stated. Use only invalid kinds the rule or field type implies; others are gaps.
-- Realistic data: BRD formats, the system's email domain (from the inputs/user), Arabic names for Arabic fields, real dropdown options. Unique values when creating data (`tc-<feature>-03@<domain>`). Login names the account (`the "<role>" account like ex: "<account email>" and its password`); never real passwords.
-- Long values: `"a" repeated <n> times (<n> characters, max is <max>)`.
+- Negative cases: all other fields valid (written out), only the field under test invalid, with the reason stated. Invalid kinds come from the stated rules and the field-type checklist (§11).
+- Realistic data: BRD formats, the system's email domain (from the inputs/user), Arabic names for Arabic fields, real dropdown options. Unique values when creating data (`tc-<feature>-03@<domain>`). Login names the account (`the "<role>" account like ex: "<account email>" and its password`); never real passwords. Long values: `"a" repeated <n> times (<n> characters, max is <max>)`.
 
 ## 10. Expected Results
-- 1–2 English sentences with an observable final outcome: message text, URL/page, field state, record shown, element visible/hidden/disabled. Never just "works correctly / as expected / successfully".
+- 1–2 English sentences with an observable final outcome: message text, URL/page, field state, record shown, element visible/hidden/disabled. Never just "works correctly / as expected / successfully"; not stated → `Depend on BRD or User Story`.
 - Quote exact texts from the inputs once, in the language of the page under test, and name each quote: `The error message "<exact message>" is shown under the "<field>" field.` (email body: `The email shows the title "…" and the button "…".`)
-- Outcome not stated → `Depend on BRD or User Story`.
 
 ## 11. EP & BVA
-**EP**: one representative per partition, each its own case with the other fields valid. Partitions come only from stated rules; others are gaps.
-| Rule | Valid | Not valid |
-|---|---|---|
-| Range (length, number, amount, date, size, count) | middle value | below min; above max |
-| Format (email, mobile, ID, date) | correct format | each way to break it (no @, no domain, spaces) |
-| Allowed chars | only allowed chars | each disallowed class (digits, letters, special) |
-| List (dropdown, file types, statuses) | each value with different behavior, else one | outside value, if it can be entered |
-| Mandatory | filled | empty; spaces only (if trimming stated) |
-| Roles | each role with distinct access | role without access |
-| States (active/inactive, pending/approved) | each BRD state | — |
+**EP + field types** (always, for every field in the inputs, by its type): one representative per partition, each its own case with the other fields valid. Behavior the inputs don't state → Expected `Depend on BRD or User Story` + business gap (not asked); limit values only from the inputs (missing → ask, §5). Script/double-extension cases live in Security.
+| Field / rule | Partitions |
+|---|---|
+| Text / textarea | valid; empty (mandatory); spaces only; leading/trailing spaces; Arabic, English, digits, special chars, emoji; pasted text |
+| Email | valid; no @; no domain; spaces inside; two @; uppercase |
+| Number / mobile / amount / ID | valid; letters; special chars; spaces; negative; zero; decimals; leading zeros |
+| Password | masked; show/hide (if present); paste; spaces; each stated complexity rule |
+| Date / time | valid; wrong format typed; picker vs typing; end before start (ranges) |
+| Dropdown / radio / checkbox / list | default; each option with different behavior; none selected (mandatory); only one (radio); search (if present) |
+| File / image upload | each allowed type; not allowed type; empty (0 KB); corrupted; long / Arabic / special-char name; more files than allowed; remove and replace; image preview; cancel picker |
+| Search / filter | match; no match (empty state); partial; upper/lower case; special chars |
+| Roles / states | each role with distinct access + a role without access; each BRD state |
 
-**BVA (3-value)** for every stated edge: min → `min−1` ✗, `min` ✓, `min+1` ✓; max → `max−1` ✓, `max` ✓, `max+1` ✗; exact n → `n−1`, `n`, `n+1`.
+**BVA (3-value)** for every stated edge (ranges also get one middle value): min → `min−1` ✗, `min` ✓, `min+1` ✓; max → `max−1` ✓, `max` ✓, `max+1` ✗; exact n → `n−1` ✗, `n` ✓, `n+1` ✗.
 - Step = smallest unit: 1 char/digit/item/attempt/day, 0.01 for 2-decimal amounts, stated unit for size/timeout.
 - Attempts: N−1 → not locked, N → locked (own account each). Timeout: just before → active; at/after → expired.
 - Skip nonsense values (negative length); merge coinciding ones (§6).
@@ -170,7 +169,7 @@ Never write openpyxl code. Save the data as JSON in a work folder (not the deliv
 If the user wants chat instead of files: a Markdown table with the 10 columns, then the coverage, EP & BVA and gaps tables.
 
 ## 14. Self-check (the script checks format, IDs, duplicate titles, placeholders, Arabic outside quotes, URL and vague Expected)
-- Every limit comes from the inputs/user; EP/BVA complete for each stated rule; fields without rules are gaps.
+- Every limit comes from the inputs/user; EP/BVA complete for each stated rule; field-type checklist applied to every field; fields without limits are gaps.
 - Security and Usability checklists applied wherever triggered; their undefined values are business gaps.
 - Nothing outside the inputs except Security/Usability and confirmed gaps; no duplicate behaviors.
 - Every missing or unclear point (incl. vague non-functional wording) was asked, never assumed; unanswered ones are `Open – no answer` gaps.
