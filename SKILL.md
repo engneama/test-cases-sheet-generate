@@ -1,6 +1,6 @@
 ---
 name: test-cases-sheet-generate
-description: "Writes functional and non-functional manual test cases in English from a user story, BRD, screenshot, Figma design or link (even Arabic input), always adding security and usability cases, and delivers an Excel file in the team's upload template plus a coverage and gaps file. Use when someone asks for manual test cases or a test case sheet (اكتبلي test cases، تيست كيسز، تست كيس، شيت test cases). Not for Playwright or other automation scripts."
+description: "Writes manual test cases (functional, non-functional, security, usability) from a user story, BRD, screenshot, Figma or link into the team's Excel upload template plus a coverage and gaps file. Use for requests like test case sheet، اكتبلي test cases، تيست كيسز، تست كيس، شيت test cases. Not for Playwright or other automation."
 ---
 
 # Test Cases – Sheet Generate
