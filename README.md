@@ -27,6 +27,18 @@ git -C ~/.claude/skills/test-cases-sheet-generate pull
 2. في claude.ai افتح **Settings**، وفي قسم **Skills** اعمل **Upload** لملف الـ ZIP زي ما هو.
 3. لازم يكون **Code execution** شغال عشان السكريبت يبني ملفات الـ Excel.
 
+### مشاكل ممكن تقابلك
+- بعد التسطيب افتح **session جديدة** في Claude Code عشان يشوف الـ skill. تقدر كمان تستدعيها بالاسم: `/test-cases-sheet-generate`.
+- لازم يكون عندك `git` و `python3`. على الماك، أول مرة `git` بيشتغل ممكن يطلب تسطيب Command Line Tools، وافق.
+
+| المشكلة | السبب | الحل |
+|---|---|---|
+| `pip3` بيطلع `externally-managed-environment` | Python متسطب من Homebrew أو نسخة Linux جديدة | الـ skill اتسطبت بس `openpyxl` لأ. شغّل `pip3 install --user --break-system-packages openpyxl`، أو سيب Claude يسطبها أول ما يشغّل السكريبت |
+| `destination path already exists` | الـ skill متسطبة قبل كده | استخدم أمر التحديث: `git -C ~/.claude/skills/test-cases-sheet-generate pull` |
+| الأمر مش شغال على Windows | `~` و `&&` بتوع الماك و Linux | استخدم أمر PowerShell اللي فوق |
+| Claude بيستخدم نسخة قديمة | عندك نسخة تانية بنفس الاسم (مثلاً مرفوعة على claude.ai) | خلّي نسخة واحدة بس: امسح القديمة أو استبدلها بالـ ZIP الجديد |
+| الـ skill مش ظاهرة في claude.ai | الأمر ده لـ Claude Code بس | ارفع الـ ZIP زي ما هو مشروح في قسم claude.ai |
+
 ### الملفات المطلوبة
 | الملف | دوره |
 |---|---|
